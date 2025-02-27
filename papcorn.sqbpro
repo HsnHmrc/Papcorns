@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/MSI/Desktop/papcorn.db" readonly="0" foreign_keys="0" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1041"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="user_events" custom_title="0" dock_id="4" table="4,11:mainuser_events"/><dock_state state="000000ff00000000fd0000000100000002000005a900000398fc0100000002fb000000160064006f0063006b00420072006f00770073006500310100000000000005a90000000000000000fb000000160064006f0063006b00420072006f00770073006500340100000000ffffffff0000011e00ffffff000005a90000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--For Task 1
+--------------------------------------------------------------------------------------------
+
+SELECT 
+    u.country, 
+    ROUND(SUM(e.amount_usd), 2) AS total_revenue
+FROM user_events e
+JOIN users u ON e.user_id = u.id
+WHERE e.event_name IN ('subscription_started', 'subscription_renewed')
+GROUP BY u.country;
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--For Task 2
+--------------------------------------------------------------------------------------------
+
+SELECT COUNT(*) AS total_trials
+FROM user_events
+JOIN users ON user_events.user_id = users.id
+WHERE event_name = 'trial_started' 
+AND attribution_source = 'instagram';
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--For Task 3
+--------------------------------------------------------------------------------------------
+--Adding Column
+ALTER TABLE users ADD COLUMN acquisition_channel TEXT;
+
+--Insert Data to New Column
+UPDATE users
+SET acquisition_channel = 
+    CASE 
+        WHEN attribution_source IN ('instagram', 'tiktok') THEN 'Paid'
+        ELSE 'Organic'
+    END;
+
+--Check
+select acquisition_channel from users;
+
+--For Task 3
+SELECT acquisition_channel, COUNT(id) AS user_count
+FROM users
+GROUP BY acquisition_channel;
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--For Task 4
+--------------------------------------------------------------------------------------------
+--a
+
+WITH trial_users AS (
+    SELECT DISTINCT user_id
+    FROM user_events
+    WHERE event_name = 'trial_started'
+),
+first_subscriptions AS (
+    SELECT user_id, MIN(created_at) AS first_subscription_date
+    FROM user_events
+    WHERE event_name = 'subscription_started'
+    GROUP BY user_id
+)
+SELECT 
+    COUNT(DISTINCT f.user_id) AS converted_users,
+    COUNT(DISTINCT t.user_id) AS total_trials
+FROM trial_users t
+LEFT JOIN first_subscriptions f ON t.user_id = f.user_id;
+
+--b
+
+WITH trial_users AS (
+    SELECT DISTINCT u.id AS user_id, u.attribution_source
+    FROM user_events e
+    JOIN users u ON e.user_id = u.id
+    WHERE e.event_name = 'trial_started'
+),
+first_subscriptions AS (
+    SELECT user_id, MIN(created_at) AS first_subscription_date
+    FROM user_events
+    WHERE event_name = 'subscription_started'
+    GROUP BY user_id
+)
+SELECT 
+    t.attribution_source,
+    COUNT(DISTINCT f.user_id) AS converted_users,
+    COUNT(DISTINCT t.user_id) AS total_trials
+FROM trial_users t
+LEFT JOIN first_subscriptions f ON t.user_id = f.user_id
+GROUP BY t.attribution_source;
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--For Task 5
+--------------------------------------------------------------------------------------------
+
+WITH subscription_data AS (
+    SELECT 
+        e.user_id,
+        u.country,
+        e.created_at AS subscription_start,
+        LEAD(e.created_at) OVER (PARTITION BY e.user_id ORDER BY e.created_at) AS subscription_end
+    FROM user_events e
+    JOIN users u ON e.user_id = u.id
+    WHERE e.event_name IN ('subscription_started', 'subscription_cancelled')
+)
+SELECT 
+    country,
+    user_id,
+    (JULIANDAY(subscription_end) - JULIANDAY(subscription_start)) / 30.0 AS subscription_duration_months
+FROM subscription_data
+WHERE subscription_end IS NOT NULL;
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--For Task 6
+--------------------------------------------------------------------------------------------
+
+SELECT u.country, 
+       (SUM(e.amount_usd) * 1.0 / COUNT(DISTINCT u.id)) AS avg_ltv
+FROM user_events e
+JOIN users u ON e.user_id = u.id
+WHERE e.event_name IN ('subscription_started', 'subscription_renewed')
+GROUP BY u.country;	
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--For Bonus Tasks
+--------------------------------------------------------------------------------------------
+--RFM Analysis
+
+WITH max_transaction_date AS (
+    SELECT MAX(created_at) AS max_date FROM user_events
+),
+user_transactions AS (
+    SELECT 
+        e.user_id,
+        MAX(e.created_at) AS last_purchase_date,  -- En son işlem tarihi
+        COUNT(e.id) AS frequency,                -- İşlem sayısı
+        SUM(e.amount_usd) AS monetary            -- Toplam harcama
+    FROM user_events e
+    WHERE e.user_id IN (1001, 1002)  -- Sadece Bruce Wayne ve Clark Kent
+    GROUP BY e.user_id
+)
+SELECT 
+    ut.user_id,
+    u.name,
+    (SELECT max_date FROM max_transaction_date) - DATE(ut.last_purchase_date) AS recency,  -- Recency hesaplama
+    ut.frequency,
+    ut.monetary
+FROM user_transactions ut
+JOIN users u ON u.id = ut.user_id;
+
+--Check
+
+SELECT 
+    e.user_id, 
+    u.name,
+	u.country,
+	u.attribution_source,
+    e.event_name, 
+    e.amount_usd, 
+    e.created_at
+FROM user_events e
+JOIN users u ON e.user_id = u.id
+WHERE e.user_id IN (1001, 1002)
+ORDER BY e.user_id, e.created_at;</sql><current_tab id="0"/></tab_sql></sqlb_project>
