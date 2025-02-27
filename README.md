@@ -4,13 +4,13 @@
 
 Dear Papcorns Team,  
 
-I appreciate the opportunity to present my analysis. Below, you'll find a structured breakdown of my work, key findings, and strategic recommendations. Looking forward to your feedback!  
+I appreciate the opportunity to present my analysis. Below, you'll find a structured breakdown of my work, key findings, and strategic recommendations (I did not transfer it in a separate file but shared it in the ReadMe section). Looking forward to your feedback!  
 
 ---
 
 ## 📁 Files in This Repository  
 
-- **Papcorns_Analysis.ipynb** → Includes my complete analysis with visualizations.  
+- **Papcorns_Analysis.ipynb** → Includes my main analysis with visualizations.  
 - **Papcorn.sql** → Contains all SQL queries used for data extraction and transformation in SQLite. Also includes the **RFM analysis** for the Bonus Task mentioned at the end of my review.  
 
 ---
@@ -29,8 +29,8 @@ I appreciate the opportunity to present my analysis. Below, you'll find a struct
 
 Without a predictive model, my manual **RFM analysis** reveals:  
 
-- **Bruce Wayne (Batman, ID:1001)** reached us via **Instagram** and converted **immediately after trial**. This signals **a high likelihood of continued engagement**.  
-- **Clark Kent (Superman, ID:1002)** arrived via **organic search** but did not convert at the same rate. **Targeted ad campaigns** or **personalized engagement efforts** may be needed for retention.  
+- **Batman (Bruce Wayne, ID:1001)** reached us via **Instagram** and converted **immediately after trial**. This signals **a high likelihood of continued engagement**.  
+- **Superman (Clark Kent, ID:1002)** arrived via **organic search** but did not convert at the same rate. **Targeted ad campaigns** or **personalized engagement efforts** may be needed for retention.  
 
 Further data collection could **enhance accuracy** and allow deeper segmentation strategies.  
 
@@ -41,4 +41,3 @@ Further data collection could **enhance accuracy** and allow deeper segmentation
 ✔ Prioritize **targeted ad expansion** (YouTube, X) based on acquisition insights.  
 ✔ Test **discount-based conversion strategies** for first-time subscribers.  
 ✔ Introduce **retention-focused incentives** (badges, loyalty rewards).  
-✔ Conduct **advanced churn modeling** to refine engagement strategies. 
