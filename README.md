@@ -11,7 +11,8 @@ I appreciate the opportunity to present my analysis. Below, you'll find a struct
 ## 📁 Files in This Repository  
 
 - **Papcorns_Analysis.ipynb** → Includes my main analysis with visualizations.  
-- **Papcorn.sql** → Contains all SQL queries used for data extraction and transformation in SQLite. Also includes the **RFM analysis** for the Bonus Task mentioned at the end of my review.  
+- **Papcorns_Queries.sql** → Contains all SQL queries used for data extraction and transformation in SQLite. Also includes the **RFM analysis** for the Bonus Task mentioned at the end of my review.  
+- **papcorn.sqbpro** → Final version of the dataset (columns added).  
 
 ---
 
